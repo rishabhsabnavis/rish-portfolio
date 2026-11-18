@@ -387,7 +387,7 @@ function PersonalNotes() {
       <h2 id="track-title" className="track-title">Personal</h2>
       <p className="blurb">
         I&apos;m a senior in Computer Science at UT Dallas, specializing in AI/ML and graduating
-        May 2027. Before code I was mixing records, so I tend to build things that listen.
+        May 2027.
       </p>
       <ul className="note-list">
         <li>
@@ -396,7 +396,7 @@ function PersonalNotes() {
         </li>
         <li>
           <span className="plus" aria-hidden="true">+</span>
-          <span>Captain of the UTD Raftaar dance team</span>
+          <span>Captain of the UTD Raftaar Bollywood Fusion Collegiate Dance team</span>
         </li>
         <li>
           <span className="plus" aria-hidden="true">+</span>
