@@ -1,30 +1,41 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { contact, PLAYER_TONE, PLAYER_TONES, projects, type Project } from './data/projects';
+import { experience, records, skills, type CrateRecord, type RecordId } from './data/records';
 
-type PlayerState = { loadedId: string | null; playing: boolean };
+/* ---------- routing ---------- */
 
-const tone = PLAYER_TONES[PLAYER_TONE];
-const discCount = String(projects.length).padStart(2, '0');
-const COUNT_WORDS = [
-  'Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six',
-  'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve',
-];
-const countWord = COUNT_WORDS[projects.length] ?? String(projects.length);
+type Route = { record: RecordId | null; projectId: string | null };
 
-function idFromHash(hash: string): string | null | undefined {
-  // `#/emolog` -> 'emolog'. Empty hash -> null (nothing loaded).
-  // Section anchors like `#work` -> undefined (leave state alone).
-  if (hash === '' || hash === '#' || hash === '#/') return null;
+const CRATE: Route = { record: null, projectId: null };
+const PULL_MS = 1050;
+
+function parseHash(hash: string): Route | undefined {
+  // '#/' -> crate, '#/projects/bookr' -> that project, '#/experience' -> that record.
+  // Old project links ('#/bookr') still work. Plain anchors ('#top') are ignored.
+  if (hash === '' || hash === '#' || hash === '#/') return CRATE;
   if (!hash.startsWith('#/')) return undefined;
-  const id = decodeURIComponent(hash.slice(2));
-  return projects.some((p) => p.id === id) ? id : null;
+  const [first, second] = decodeURIComponent(hash.slice(2)).split('/');
+  if (records.some((r) => r.id === first)) {
+    const projectId =
+      first === 'projects' && projects.some((p) => p.id === second) ? second : null;
+    return { record: first as RecordId, projectId };
+  }
+  if (projects.some((p) => p.id === first)) return { record: 'projects', projectId: first };
+  return CRATE;
+}
+
+function toHash(r: Route) {
+  if (!r.record) return '#/';
+  return r.projectId ? `#/${r.record}/${r.projectId}` : `#/${r.record}`;
 }
 
 function prefersReducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/* ---------- small pieces ---------- */
+const tone = PLAYER_TONES[PLAYER_TONE];
+
+/* ---------- discs ---------- */
 
 function DiscArt({ project, eager, small }: { project: Project; eager?: boolean; small?: boolean }) {
   const [failed, setFailed] = useState(false);
@@ -46,6 +57,14 @@ function DiscArt({ project, eager, small }: { project: Project; eager?: boolean;
       decoding="async"
       onError={() => setFailed(true)}
     />
+  );
+}
+
+function Vinyl({ record }: { record: CrateRecord }) {
+  return (
+    <span className="vinyl" style={{ '--label': record.label } as React.CSSProperties}>
+      <span className="vinyl-label" />
+    </span>
   );
 }
 
@@ -75,15 +94,15 @@ function EjectIcon() {
   );
 }
 
-/* ---------- sections ---------- */
+/* ---------- background ---------- */
 
-function Background({ current }: { current?: Project }) {
+function Background({ project }: { project?: Project }) {
   return (
     <div className="bg" aria-hidden="true">
       <img className="bg-art" src="/assets/background.webp" alt="" fetchPriority="high" />
-      {current && (
-        <div key={current.id} className="bg-wash fade-in">
-          <img src={current.img} alt="" />
+      {project && (
+        <div key={project.id} className="bg-wash fade-in">
+          <img src={project.img} alt="" />
         </div>
       )}
       <div className="drift drift-a" />
@@ -93,21 +112,131 @@ function Background({ current }: { current?: Project }) {
   );
 }
 
+/* ---------- the crate (landing) ---------- */
+
+function Sleeve({
+  record,
+  depth,
+  state,
+  disabled,
+  onHover,
+  onPull,
+}: {
+  record: CrateRecord;
+  depth: number;
+  state: 'idle' | 'lifted' | 'leaning' | 'pulled';
+  disabled: boolean;
+  onHover: (depth: number | null) => void;
+  onPull: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`sleeve sleeve--${record.id} is-${state}`}
+      style={{ '--d': depth, zIndex: state === 'pulled' ? 40 : 10 - depth } as React.CSSProperties}
+      onPointerEnter={() => onHover(depth)}
+      onPointerLeave={() => onHover(null)}
+      onFocus={() => onHover(depth)}
+      onBlur={() => onHover(null)}
+      onClick={onPull}
+      disabled={disabled}
+      aria-label={`Pull ${record.title} from the crate`}
+    >
+      <span className="sleeve-disc" aria-hidden="true">
+        <Vinyl record={record} />
+      </span>
+      <span className="sleeve-cover" aria-hidden="true">
+        <span className="sleeve-art" />
+        <span className="sleeve-title">{record.title}</span>
+        <span className="sleeve-sticker">{record.sticker}</span>
+      </span>
+    </button>
+  );
+}
+
+function Crate({ onPull }: { onPull: (id: RecordId) => void }) {
+  const [hover, setHover] = useState<number | null>(null);
+  const [pulling, setPulling] = useState<RecordId | null>(null);
+  const timer = useRef<number>();
+
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const pull = (id: RecordId) => {
+    if (pulling) return;
+    if (prefersReducedMotion()) {
+      onPull(id);
+      return;
+    }
+    setPulling(id);
+    timer.current = window.setTimeout(() => onPull(id), PULL_MS);
+  };
+
+  return (
+    <div className={pulling ? 'crate is-pulling' : 'crate'}>
+      <div className="crate-stack">
+        {records.map((r, depth) => {
+          let state: 'idle' | 'lifted' | 'leaning' | 'pulled' = 'idle';
+          if (pulling) state = pulling === r.id ? 'pulled' : 'idle';
+          else if (hover !== null && depth === hover) state = 'lifted';
+          else if (hover !== null && depth < hover) state = 'leaning';
+          return (
+            <Sleeve
+              key={r.id}
+              record={r}
+              depth={depth}
+              state={state}
+              disabled={pulling !== null}
+              onHover={setHover}
+              onPull={() => pull(r.id)}
+            />
+          );
+        })}
+      </div>
+      <div className="crate-front" aria-hidden="true">
+        <span className="crate-handle" />
+        <span className="crate-stamp">Rishabh Sabnavis &nbsp;/&nbsp; records</span>
+      </div>
+    </div>
+  );
+}
+
+function Landing({ onPull }: { onPull: (id: RecordId) => void }) {
+  return (
+    <section className="glass stage" aria-labelledby="hero-title">
+      <div className="stage-copy">
+        <h1 id="hero-title">
+          Software &amp; AI engineer, audio at heart.
+        </h1>
+        <p className="hero-intro">
+          CS at UT Dallas, AI/ML track, graduating May 2027. I build voice agents, speech
+          tooling, iOS apps and graphics, with a background in audio engineering.
+        </p>
+        <p className="stage-hint">Dig through the crate and pull a record to play it.</p>
+      </div>
+      <Crate onPull={onPull} />
+    </section>
+  );
+}
+
+/* ---------- player ---------- */
+
 function Player({
-  current,
+  discKey,
+  disc,
+  readout,
   playing,
   onToggle,
   onEject,
   boxRef,
 }: {
-  current?: Project;
+  discKey: string;
+  disc: ReactNode;
+  readout: string;
   playing: boolean;
   onToggle: () => void;
   onEject: () => void;
   boxRef: React.RefObject<HTMLDivElement>;
 }) {
-  const empty = !current;
-  const isPlaying = !empty && playing;
   return (
     <div className="player">
       <div className="glass player-card">
@@ -120,41 +249,31 @@ function Player({
             style={{ filter: tone.filter }}
           />
           <div className="disc-slot">
-            {current && (
-              <div key={current.id} className="disc-in">
-                <div
-                  className={isPlaying ? 'spinner' : 'spinner paused'}
-                  style={{ '--ring': tone.ring } as React.CSSProperties}
-                >
-                  <DiscArt project={current} eager />
-                  <div className="sheen" aria-hidden="true" />
-                  <div className="clamp" aria-hidden="true" />
-                  <div className="spindle" aria-hidden="true" />
-                </div>
+            <div key={discKey} className="disc-in">
+              <div
+                className={playing ? 'spinner' : 'spinner paused'}
+                style={{ '--ring': tone.ring } as React.CSSProperties}
+              >
+                {disc}
+                <div className="sheen" aria-hidden="true" />
+                <div className="clamp" aria-hidden="true" />
+                <div className="spindle" aria-hidden="true" />
               </div>
-            )}
+            </div>
           </div>
-          <div className={empty ? 'led' : 'led on'} aria-hidden="true" />
+          <div className="led on" aria-hidden="true" />
         </div>
       </div>
 
       <div className="readout">
         <div className="lcd">
-          <span className="lcd-main">
-            {current ? `${current.num}  ${current.title.toUpperCase()}` : 'INSERT DISC'}
-          </span>
-          <span className="lcd-status">{empty ? '--:--' : isPlaying ? 'PLAY' : 'PAUSE'}</span>
+          <span className="lcd-main">{readout}</span>
+          <span className="lcd-status">{playing ? 'PLAY' : 'PAUSE'}</span>
         </div>
-        <button
-          type="button"
-          className="ctrl"
-          onClick={onToggle}
-          disabled={empty}
-          aria-label={isPlaying ? 'Pause' : 'Play'}
-        >
-          {isPlaying ? <PauseIcon /> : <PlayIcon />}
+        <button type="button" className="ctrl" onClick={onToggle} aria-label={playing ? 'Pause' : 'Play'}>
+          {playing ? <PauseIcon /> : <PlayIcon />}
         </button>
-        <button type="button" className="ctrl" onClick={onEject} disabled={empty} aria-label="Eject disc">
+        <button type="button" className="ctrl" onClick={onEject} aria-label="Eject and go back to the crate">
           <EjectIcon />
         </button>
       </div>
@@ -162,68 +281,175 @@ function Player({
   );
 }
 
-function LinerNotes({ current }: { current?: Project }) {
+/* ---------- liner notes per record ---------- */
+
+function ProjectNotes({ project, onBack }: { project: Project; onBack: () => void }) {
   return (
-    <div className="glass panel notes">
-      {!current ? (
-        <div className="notes-empty">
-          <h2 className="label">LINER NOTES</h2>
-          <p className="quote">
-            {countWord} discs on the rack. Load one to hear what it does.
-          </p>
-          <p className="notes-empty-body">
-            Every disc is a project: voice agents, speech middleware, an iOS app, a renderer, a classifier. The
-            player reads its notes back to you here.
-          </p>
-        </div>
-      ) : (
-        <article key={current.id} className="notes-article fade-in" aria-labelledby="track-title">
-          <span className="label">
-            TRACK {current.num} / {current.kind}
-          </span>
-          <h2 id="track-title" className="track-title">
-            {current.title}
-          </h2>
-          <p className="blurb">{current.blurb}</p>
-          <ul className="note-list">
-            {current.notes.map((n) => (
-              <li key={n}>
-                <span className="plus" aria-hidden="true">+</span>
-                <span>{n}</span>
-              </li>
-            ))}
-          </ul>
-          <ul className="chips" aria-label="Stack">
-            {current.stack.map((s) => (
-              <li key={s} className="chip">{s}</li>
-            ))}
-          </ul>
-          {(current.links?.github || current.links?.demo) && (
-            <div className="track-links">
-              {current.links.github && (
-                <a href={current.links.github} target="_blank" rel="noreferrer">
-                  GITHUB <span className="visually-hidden">for {current.title}</span>
-                </a>
-              )}
-              {current.links.demo && (
-                <a href={current.links.demo} target="_blank" rel="noreferrer">
-                  DEMO <span className="visually-hidden">of {current.title}</span>
-                </a>
-              )}
-            </div>
+    <article key={project.id} className="notes-article fade-in" aria-labelledby="track-title">
+      <button type="button" className="text-btn" onClick={onBack}>
+        All projects
+      </button>
+      <span className="label">
+        TRACK {project.num} / {project.kind}
+      </span>
+      <h2 id="track-title" className="track-title">
+        {project.title}
+      </h2>
+      <p className="blurb">{project.blurb}</p>
+      <ul className="note-list">
+        {project.notes.map((n) => (
+          <li key={n}>
+            <span className="plus" aria-hidden="true">+</span>
+            <span>{n}</span>
+          </li>
+        ))}
+      </ul>
+      <ul className="chips" aria-label="Stack">
+        {project.stack.map((s) => (
+          <li key={s} className="chip">{s}</li>
+        ))}
+      </ul>
+      {(project.links?.github || project.links?.demo) && (
+        <div className="track-links">
+          {project.links.github && (
+            <a href={project.links.github} target="_blank" rel="noreferrer">
+              GITHUB <span className="visually-hidden">for {project.title}</span>
+            </a>
           )}
-        </article>
+          {project.links.demo && (
+            <a href={project.links.demo} target="_blank" rel="noreferrer">
+              DEMO <span className="visually-hidden">of {project.title}</span>
+            </a>
+          )}
+        </div>
       )}
-    </div>
+    </article>
   );
 }
+
+function Tracklist({ onPick }: { onPick: (id: string) => void }) {
+  return (
+    <article className="notes-article fade-in" aria-labelledby="track-title">
+      <h2 id="track-title" className="track-title">Projects</h2>
+      <p className="blurb">
+        Voice agents, speech middleware, an iOS app, a renderer and a classifier. Pick a track
+        to put its disc on.
+      </p>
+      <ol className="tracklist">
+        {projects.map((p) => (
+          <li key={p.id}>
+            <button type="button" className="track-row" onClick={() => onPick(p.id)}>
+              <span className="track-num">{p.num}</span>
+              <span className="track-name">{p.title}</span>
+              <span className="track-kind">{p.kind.toLowerCase()}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+    </article>
+  );
+}
+
+function ExperienceNotes() {
+  return (
+    <article className="notes-article fade-in" aria-labelledby="track-title">
+      <h2 id="track-title" className="track-title">Experience</h2>
+      <div className="roles">
+        {experience.map((r) => (
+          <section key={r.org} className="role">
+            <h3 className="role-org">{r.org}</h3>
+            <p className="role-meta">
+              {r.role}, {r.dates}
+            </p>
+            <ul className="note-list">
+              {r.notes.map((n) => (
+                <li key={n}>
+                  <span className="plus" aria-hidden="true">+</span>
+                  <span>{n}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+      <ul className="chips" aria-label="Skills">
+        {skills.map((s) => (
+          <li key={s} className="chip">{s}</li>
+        ))}
+      </ul>
+    </article>
+  );
+}
+
+function PersonalNotes() {
+  return (
+    <article className="notes-article fade-in" aria-labelledby="track-title">
+      <h2 id="track-title" className="track-title">Personal</h2>
+      <p className="blurb">
+        I&apos;m a senior in Computer Science at UT Dallas, specializing in AI/ML and graduating
+        May 2027. Before code I was mixing records, so I tend to build things that listen.
+      </p>
+      <ul className="note-list">
+        <li>
+          <span className="plus" aria-hidden="true">+</span>
+          <span>I DJ and produce as RISH</span>
+        </li>
+        <li>
+          <span className="plus" aria-hidden="true">+</span>
+          <span>Captain of the UTD Raftaar dance team</span>
+        </li>
+        <li>
+          <span className="plus" aria-hidden="true">+</span>
+          <span>Member of ACM and the Artificial Intelligence Society at UT Dallas</span>
+        </li>
+        <li>
+          <span className="plus" aria-hidden="true">+</span>
+          <span>Coursework in generative AI, agentic AI, and LLM fine-tuning with audio</span>
+        </li>
+      </ul>
+    </article>
+  );
+}
+
+function ContactNotes() {
+  return (
+    <article className="notes-article fade-in" aria-labelledby="track-title">
+      <h2 id="track-title" className="track-title">Contact</h2>
+      <p className="blurb">
+        I&apos;m looking for new grad software and AI engineering roles. Email is the fastest way
+        to reach me.
+      </p>
+      <ul className="contact-list">
+        {contact.email && (
+          <li>
+            <a href={`mailto:${contact.email}`}>{contact.email}</a>
+          </li>
+        )}
+        {contact.linkedin && (
+          <li>
+            <a href={contact.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
+          </li>
+        )}
+        {contact.github && (
+          <li>
+            <a href={contact.github} target="_blank" rel="noreferrer">GitHub</a>
+          </li>
+        )}
+      </ul>
+    </article>
+  );
+}
+
+/* ---------- project rack ---------- */
 
 function Rack({ loadedId, onPick }: { loadedId: string | null; onPick: (id: string) => void }) {
   return (
     <section className="glass panel rack" aria-labelledby="rack-label">
       <div className="rack-head">
         <h2 id="rack-label" className="label">THE RACK</h2>
-        <span className="label label-count">{discCount} DISCS</span>
+        <span className="label label-count">
+          {String(projects.length).padStart(2, '0')} DISCS
+        </span>
       </div>
       <div className="rack-grid">
         {projects.map((p, i) => {
@@ -260,6 +486,73 @@ function Rack({ loadedId, onPick }: { loadedId: string | null; onPick: (id: stri
   );
 }
 
+/* ---------- record view ---------- */
+
+function RecordView({
+  route,
+  go,
+}: {
+  route: Route & { record: RecordId };
+  go: (r: Route) => void;
+}) {
+  const [playing, setPlaying] = useState(true);
+  const playerRef = useRef<HTMLDivElement>(null);
+  const record = records.find((r) => r.id === route.record)!;
+  const project = projects.find((p) => p.id === route.projectId);
+
+  const pickProject = (id: string) => {
+    go({ record: 'projects', projectId: id === route.projectId ? null : id });
+    setPlaying(true);
+    const el = playerRef.current;
+    if (el) {
+      const r = el.getBoundingClientRect();
+      if (r.top < 0 || r.bottom > window.innerHeight) {
+        el.scrollIntoView({ block: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+      }
+    }
+  };
+
+  let notes: ReactNode;
+  if (record.id === 'projects') {
+    notes = project ? (
+      <ProjectNotes project={project} onBack={() => go({ record: 'projects', projectId: null })} />
+    ) : (
+      <Tracklist onPick={pickProject} />
+    );
+  } else if (record.id === 'experience') notes = <ExperienceNotes />;
+  else if (record.id === 'personal') notes = <PersonalNotes />;
+  else notes = <ContactNotes />;
+
+  return (
+    <>
+      <div className="record-bar">
+        <button type="button" className="text-btn back-btn" onClick={() => go(CRATE)}>
+          Back to the crate
+        </button>
+      </div>
+      <section id="work" className="work" aria-label={record.title}>
+        <Player
+          discKey={project ? project.id : record.id}
+          disc={project ? <DiscArt project={project} eager /> : <Vinyl record={record} />}
+          readout={
+            project
+              ? `${project.num}  ${project.title.toUpperCase()}`
+              : `${record.title.toUpperCase()}`
+          }
+          playing={playing}
+          onToggle={() => setPlaying((p) => !p)}
+          onEject={() => go(CRATE)}
+          boxRef={playerRef}
+        />
+        <div className="glass panel notes">{notes}</div>
+      </section>
+      {record.id === 'projects' && <Rack loadedId={route.projectId} onPick={pickProject} />}
+    </>
+  );
+}
+
+/* ---------- footer ---------- */
+
 function Footer() {
   const links = [
     contact.github && { href: contact.github, label: 'GITHUB' },
@@ -267,7 +560,7 @@ function Footer() {
     contact.soundcloud && { href: contact.soundcloud, label: 'SOUNDCLOUD' },
   ].filter(Boolean) as { href: string; label: string }[];
   return (
-    <footer id="contact" className="glass footer">
+    <footer className="glass footer">
       {contact.email ? (
         <a href={`mailto:${contact.email}`}>{contact.email.toUpperCase()}</a>
       ) : (
@@ -287,111 +580,72 @@ function Footer() {
 /* ---------- app ---------- */
 
 export default function App() {
-  const [state, setState] = useState<PlayerState>(() => ({
-    loadedId: idFromHash(window.location.hash) ?? null,
-    playing: true,
-  }));
+  const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash) ?? CRATE);
   const [announce, setAnnounce] = useState('');
-  const playerRef = useRef<HTMLDivElement>(null);
 
-  const current = projects.find((p) => p.id === state.loadedId);
+  const routeRef = useRef(route);
+  routeRef.current = route;
 
-  // Keep the URL hash in sync so a loaded project is shareable.
-  const setLoaded = useCallback((id: string | null) => {
-    setState({ loadedId: id, playing: true });
-    const p = projects.find((x) => x.id === id);
-    setAnnounce(p ? `Now playing: ${p.title}` : 'Disc ejected');
-    const next = id ? `#/${id}` : window.location.pathname + window.location.search;
-    if ((id ? `#/${id}` : '') !== window.location.hash) {
-      window.history.pushState(null, '', next);
+  const go = useCallback((next: Route) => {
+    if (routeRef.current.record !== next.record) window.scrollTo({ top: 0, behavior: 'auto' });
+    setRoute(next);
+    const rec = records.find((r) => r.id === next.record);
+    const proj = projects.find((p) => p.id === next.projectId);
+    setAnnounce(proj ? `Now playing: ${proj.title}` : rec ? `Now playing: ${rec.title}` : 'Back at the crate');
+    if (toHash(next) !== (window.location.hash || '#/')) {
+      window.history.pushState(null, '', toHash(next));
     }
   }, []);
 
   useEffect(() => {
     const onPop = () => {
-      const id = idFromHash(window.location.hash);
-      if (id === undefined) return;
-      setState({ loadedId: id, playing: true });
+      const r = parseHash(window.location.hash);
+      if (r) setRoute(r);
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, []);
 
-  const pick = (id: string) => {
-    if (id === state.loadedId) {
-      setLoaded(null);
-      return;
-    }
-    setLoaded(id);
-    const el = playerRef.current;
-    if (el) {
-      const r = el.getBoundingClientRect();
-      const visible = r.top >= 0 && r.bottom <= window.innerHeight;
-      if (!visible) {
-        el.scrollIntoView({ block: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
-      }
-    }
-  };
+  const project = projects.find((p) => p.id === route.projectId);
 
   return (
     <div className="page">
-      <Background current={current} />
+      <Background project={project} />
       <div className="wrap">
         <header className="glass nav">
-          <a href="#top" className="logo">Rishabh Sabnavis</a>
+          <a
+            href="#/"
+            className="logo"
+            onClick={(e) => {
+              e.preventDefault();
+              go(CRATE);
+            }}
+          >
+            Rishabh Sabnavis
+          </a>
           <nav aria-label="Primary" className="nav-links">
-            <a href="#work">WORK</a>
-            <a href="#about">ABOUT</a>
-            <a href="#contact">CONTACT</a>
+            {records.map((r) => (
+              <a
+                key={r.id}
+                href={`#/${r.id}`}
+                aria-current={route.record === r.id ? 'page' : undefined}
+                onClick={(e) => {
+                  e.preventDefault();
+                  go({ record: r.id, projectId: null });
+                }}
+              >
+                {r.title.toUpperCase()}
+              </a>
+            ))}
           </nav>
         </header>
 
         <main>
-          <section id="top" className="hero" aria-labelledby="hero-title">
-            <div className="glass hero-card">
-              <h1 id="hero-title">
-                Software &amp; AI
-                <br />
-                <em>engineer,</em> audio
-                <br />
-                at heart.
-              </h1>
-              <p className="hero-intro">
-                CS at UT Dallas, AI/ML track, graduating May 2027. I build voice agents, speech
-                tooling, iOS apps and graphics, with a background in audio engineering. Pick a disc to play a
-                project.
-              </p>
-            </div>
-          </section>
-
-          <section id="work" className="work" aria-label="Work">
-            <Player
-              current={current}
-              playing={state.playing}
-              onToggle={() => current && setState((s) => ({ ...s, playing: !s.playing }))}
-              onEject={() => setLoaded(null)}
-              boxRef={playerRef}
-            />
-            <LinerNotes current={current} />
-          </section>
-
-          <Rack loadedId={state.loadedId} onPick={pick} />
-
-          <section id="about" className="glass panel about" aria-labelledby="about-title">
-            <h2 id="about-title" className="bside">B-side</h2>
-            <div className="about-copy">
-              <p>
-                I&apos;m a senior in Computer Science at UT Dallas specializing in AI/ML, looking for
-                new grad software and AI engineering roles. Before code I was mixing records, so I
-                tend to build things that listen.
-              </p>
-              <p className="muted">
-                Previously: UT Southwestern&apos;s Hattori Lab (a React and FastAPI tool for exploring
-                neural data on 138,000+ cells), NRVE (generative music on AWS SageMaker), and the
-                National Geospatial-Intelligence Agency (computer vision on satellite imagery). Off hours I DJ and produce as RISH.
-              </p>
-            </div>
-          </section>
+          {route.record ? (
+            <RecordView key={route.record} route={route as Route & { record: RecordId }} go={go} />
+          ) : (
+            <Landing onPull={(id) => go({ record: id, projectId: null })} />
+          )}
         </main>
 
         <Footer />
