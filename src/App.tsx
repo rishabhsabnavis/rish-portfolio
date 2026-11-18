@@ -202,19 +202,10 @@ function Crate({ onPull }: { onPull: (id: RecordId) => void }) {
 
 function Landing({ onPull }: { onPull: (id: RecordId) => void }) {
   return (
-    <section className="glass stage" aria-labelledby="hero-title">
-      <div className="stage-copy">
-        <h1 id="hero-title">
-          Software &amp; AI engineer, audio at heart.
-        </h1>
-        <p className="hero-intro">
-          CS at UT Dallas, AI/ML track, graduating May 2027. I build voice agents, speech
-          tooling, iOS apps and graphics, with a background in audio engineering.
-        </p>
-        <p className="stage-hint">Dig through the crate and pull a record to play it.</p>
-      </div>
+    <main className="landing">
+      <h1 className="visually-hidden">Rishabh Sabnavis, software and AI engineer</h1>
       <Crate onPull={onPull} />
-    </section>
+    </main>
   );
 }
 
@@ -611,45 +602,45 @@ export default function App() {
   return (
     <div className="page">
       <Background project={project} />
-      <div className="wrap">
-        <header className="glass nav">
-          <a
-            href="#/"
-            className="logo"
-            onClick={(e) => {
-              e.preventDefault();
-              go(CRATE);
-            }}
-          >
-            Rishabh Sabnavis
-          </a>
-          <nav aria-label="Primary" className="nav-links">
-            {records.map((r) => (
-              <a
-                key={r.id}
-                href={`#/${r.id}`}
-                aria-current={route.record === r.id ? 'page' : undefined}
-                onClick={(e) => {
-                  e.preventDefault();
-                  go({ record: r.id, projectId: null });
-                }}
-              >
-                {r.title.toUpperCase()}
-              </a>
-            ))}
-          </nav>
-        </header>
+      {route.record ? (
+        <div className="wrap">
+          <header className="glass nav">
+            <a
+              href="#/"
+              className="logo"
+              onClick={(e) => {
+                e.preventDefault();
+                go(CRATE);
+              }}
+            >
+              Rishabh Sabnavis
+            </a>
+            <nav aria-label="Primary" className="nav-links">
+              {records.map((r) => (
+                <a
+                  key={r.id}
+                  href={`#/${r.id}`}
+                  aria-current={route.record === r.id ? 'page' : undefined}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    go({ record: r.id, projectId: null });
+                  }}
+                >
+                  {r.title.toUpperCase()}
+                </a>
+              ))}
+            </nav>
+          </header>
 
-        <main>
-          {route.record ? (
+          <main>
             <RecordView key={route.record} route={route as Route & { record: RecordId }} go={go} />
-          ) : (
-            <Landing onPull={(id) => go({ record: id, projectId: null })} />
-          )}
-        </main>
+          </main>
 
-        <Footer />
-      </div>
+          <Footer />
+        </div>
+      ) : (
+        <Landing onPull={(id) => go({ record: id, projectId: null })} />
+      )}
       <div className="visually-hidden" aria-live="polite">
         {announce}
       </div>

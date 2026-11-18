@@ -234,49 +234,18 @@ button:focus-visible {
 
 /* ---------- landing: the crate ---------- */
 
-.stage {
+.landing {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-7);
   align-items: center;
-  justify-content: space-between;
-  margin: 56px 0 var(--space-7);
-  padding: 48px;
-  border-radius: var(--radius-hero);
-}
-.stage-copy {
-  flex: 1 1 380px;
-  max-width: 540px;
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-}
-.stage h1 {
-  margin: 0;
-  font-family: var(--serif);
-  font-weight: 400;
-  font-size: clamp(52px, 6.6vw, 100px);
-  line-height: 0.94;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-.hero-intro {
-  margin: 0;
-  max-width: 420px;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--ink-3);
-}
-.stage-hint {
-  margin: 0;
-  font-family: var(--serif);
-  font-size: 24px;
-  line-height: 1.2;
-  color: var(--ink-2);
+  justify-content: center;
+  padding: 24px 16px;
 }
 
 .crate {
-  --s: min(340px, calc(100vw - 136px));
+  --s: min(400px, calc(100vw - 80px), calc(100svh - 300px));
   --step: 62px;
   position: relative;
   flex: 0 0 auto;
@@ -1143,23 +1112,6 @@ button:focus-visible {
   :root {
     --gutter: 20px;
     --panel-pad: 24px;
-  }
-  .stage {
-    margin-top: var(--space-5);
-    padding: 24px;
-    gap: var(--space-5);
-  }
-  .stage h1 {
-    font-size: 44px;
-  }
-  .stage-copy {
-    gap: 14px;
-  }
-  .hero-intro {
-    font-size: 15px;
-  }
-  .stage-hint {
-    font-size: 20px;
   }
   .nav {
     border-radius: 24px;
