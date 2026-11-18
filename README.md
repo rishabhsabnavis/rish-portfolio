@@ -1,4 +1,4 @@
-# RISH / Portfolio
+# Rishabh Sabnavis / Portfolio
 
 A one-page portfolio where projects are CDs: pick a disc from the rack, it flies into an illustrated CD player, spins, and the liner notes panel shows the project.
 

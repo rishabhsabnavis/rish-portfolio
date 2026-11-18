@@ -338,7 +338,7 @@ export default function App() {
       <Background current={current} />
       <div className="wrap">
         <header className="glass nav">
-          <a href="#top" className="logo">RISH</a>
+          <a href="#top" className="logo">Rishabh Sabnavis</a>
           <nav aria-label="Primary" className="nav-links">
             <a href="#work">WORK</a>
             <a href="#about">ABOUT</a>
