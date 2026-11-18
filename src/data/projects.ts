@@ -31,35 +31,38 @@ const base: ProjectInput[] = [
     id: 'bookr',
     kind: 'VOICE AGENT',
     title: 'Bookr',
-    blurb: 'A multi-agent voice booking system. Call it, talk to it, and it books.',
+    blurb:
+      'A multi-agent voice system for DJs that cold-calls venues over real phone lines, taking a booking from profile to matched venues to a live call to a logged outcome.',
     notes: [
-      'Multi-agent orchestration with LangGraph',
-      'Retrieval over pgvector for grounded answers',
-      'Telephony through Twilio and LiveKit',
+      '4 LangGraph agents: a supervisor plus venue discovery, pitch builder and outbound caller',
+      'RAG venue matching over a 95-venue pgvector database, filtered by city, venue type and genre',
+      'Embeddings cut to 512 dimensions for faster cosine-similarity retrieval',
+      'Production across Railway, Vercel, Neon, MongoDB Atlas, LiveKit and Twilio at about $0.65 per call',
     ],
-    stack: ['LangGraph', 'pgvector', 'RAG', 'Twilio', 'LiveKit', 'Railway', 'Vercel', 'Neon'],
+    stack: ['Python', 'LangGraph', 'FastAPI', 'pgvector', 'React', 'MongoDB', 'Docker', 'LiveKit', 'Twilio'],
     links: {
       github: 'https://github.com/rishabhsabnavis/Bookr',
       demo: 'https://bookr-lyart.vercel.app',
     },
   },
   {
-    id: 'gigcaller',
-    kind: 'VOICE AGENT',
-    title: 'GigCaller',
+    id: 'inkling',
+    kind: 'iOS APP',
+    title: 'Inkling',
     blurb:
-      'A multi-agent voice booking system for DJs, so the phone calls about gigs handle themselves.',
+      'An offline-first iOS reading companion. Scan a page, and it flags the words you probably do not know and defines them on tap.',
     notes: [
-      'LangGraph agents behind a FastAPI service',
-      'Calls over LiveKit SIP with ElevenLabs voices',
-      'Memory and retrieval on MongoDB and pgvector',
+      'Vision OCR on the page, WordNet for definitions',
+      'On-device Foundation Models pick the right word sense from sentence context',
+      '1PL Rasch model with Bayesian updates estimates reader ability, settling within 0.25 logits',
+      'Reader state is event sourced as a replayable log, backed by 146 unit tests',
     ],
-    stack: ['LangGraph', 'FastAPI', 'MongoDB', 'pgvector', 'LiveKit SIP', 'ElevenLabs', 'S3'],
+    stack: ['Swift', 'SwiftUI', 'Apple Vision', 'Foundation Models', 'Supabase Auth'],
   },
   {
-    id: 'contextos',
+    id: 'cliptoken',
     kind: 'MIDDLEWARE',
-    title: 'ContextOS',
+    title: 'ClipToken',
     blurb:
       'Context compression middleware for AI agents. Less noise in the window, more room to think.',
     notes: ['Sits between an agent and its model', 'Compresses context before it is sent'],
@@ -106,7 +109,9 @@ export const contact: {
   linkedin?: string;
   soundcloud?: string;
 } = {
+  email: 'rishabhsabnavis@gmail.com',
   github: 'https://github.com/rishabhsabnavis',
+  linkedin: 'https://www.linkedin.com/in/rishabhsabnavis/',
 };
 
 export const PLAYER_TONES = {

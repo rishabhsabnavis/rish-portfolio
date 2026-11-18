@@ -172,7 +172,7 @@ function LinerNotes({ current }: { current?: Project }) {
             {countWord} discs on the rack. Load one to hear what it does.
           </p>
           <p className="notes-empty-body">
-            Every disc is a project: voice agents, speech middleware, a renderer, a classifier. The
+            Every disc is a project: voice agents, speech middleware, an iOS app, a renderer, a classifier. The
             player reads its notes back to you here.
           </p>
         </div>
@@ -358,7 +358,7 @@ export default function App() {
               </h1>
               <p className="hero-intro">
                 CS at UT Dallas, AI/ML track, graduating May 2027. I build voice agents, speech
-                tooling and graphics, with a background in audio engineering. Pick a disc to play a
+                tooling, iOS apps and graphics, with a background in audio engineering. Pick a disc to play a
                 project.
               </p>
             </div>
@@ -381,13 +381,14 @@ export default function App() {
             <h2 id="about-title" className="bside">B-side</h2>
             <div className="about-copy">
               <p>
-                I&apos;m a junior in Computer Science at UT Dallas specializing in AI/ML, looking for
+                I&apos;m a senior in Computer Science at UT Dallas specializing in AI/ML, looking for
                 new grad software and AI engineering roles. Before code I was mixing records, so I
                 tend to build things that listen.
               </p>
               <p className="muted">
-                Previously: UT Southwestern&apos;s Hattori Lab, NRVE (music tech), and the National
-                Geospatial-Intelligence Agency. Off hours I DJ and produce as RISH.
+                Previously: UT Southwestern&apos;s Hattori Lab (a React and FastAPI tool for exploring
+                neural data on 138,000+ cells), NRVE (generative music on AWS SageMaker), and the
+                National Geospatial-Intelligence Agency (computer vision on satellite imagery). Off hours I DJ and produce as RISH.
               </p>
             </div>
           </section>

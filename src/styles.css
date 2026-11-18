@@ -576,8 +576,14 @@ button:focus-visible {
 }
 .rack-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  /* 6 discs: one row of 6 when it fits, else two even rows of 3. */
+  grid-template-columns: repeat(3, 1fr);
   gap: 28px;
+}
+@media (min-width: 1180px) {
+  .rack-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
 .rack-btn {
   --disc: 132px;
