@@ -1,16 +1,17 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Interactive "dots + lines" grid background. Faint green lines sit on white;
- * near the cursor the lines darken and dots fade in at each intersection,
- * then fade back out with a short delay so the cursor leaves a soft trail.
+ * Interactive "plus symbols" grid background. Faint green plus marks sit on
+ * white; near the cursor they darken and grow, then fade back with a short
+ * delay so the cursor leaves a soft trail.
  */
 
-const LINE_RGB = '31, 107, 46';
-const BASE_LINE_ALPHA = 0.09;
-const HOVER_LINE_ALPHA = 0.7; // added on top of the base at full intensity
-const DOT_ALPHA = 1;
-const DOT_RADIUS = 2.8;
+const RGB = '31, 107, 46';
+const BASE_ALPHA = 0.2;
+const HOVER_ALPHA = 0.95; // at full intensity
+const ARM = 4; // half-length of each plus arm at rest, px
+const ARM_GROW = 3.5; // extra half-length at full intensity
+const STROKE = 1.25;
 const RADIUS = 230; // proximity radius in px
 const RISE = 0.22; // how fast elements fade in (per frame)
 const FALL = 0.035; // how fast they fade out: the "fade delay"
@@ -52,46 +53,22 @@ export default function Pattern() {
 
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
-      ctx.lineWidth = 1;
-
-      // base grid
-      ctx.strokeStyle = `rgba(${LINE_RGB}, ${BASE_LINE_ALPHA})`;
-      ctx.beginPath();
-      for (let c = 0; c < cols; c++) {
-        const x = c * gap + 0.5;
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-      }
-      for (let r = 0; r < rows; r++) {
-        const y = r * gap + 0.5;
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-      }
-      ctx.stroke();
-
-      // darkened segments and dots near the cursor
+      ctx.lineWidth = STROKE;
+      ctx.lineCap = 'round';
+      const off = gap / 2; // keep marks off the window edges
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           const v = level[r * cols + c];
-          if (v < 0.01) continue;
-          const x = c * gap + 0.5;
-          const y = r * gap + 0.5;
-          const right = c + 1 < cols ? level[r * cols + c + 1] : 0;
-          const down = r + 1 < rows ? level[(r + 1) * cols + c] : 0;
-          ctx.strokeStyle = `rgba(${LINE_RGB}, ${(HOVER_LINE_ALPHA * (v + right)) / 2})`;
+          const x = c * gap + off;
+          const y = r * gap + off;
+          const arm = ARM + ARM_GROW * v;
+          ctx.strokeStyle = `rgba(${RGB}, ${BASE_ALPHA + (HOVER_ALPHA - BASE_ALPHA) * v})`;
           ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x + gap, y);
+          ctx.moveTo(x - arm, y);
+          ctx.lineTo(x + arm, y);
+          ctx.moveTo(x, y - arm);
+          ctx.lineTo(x, y + arm);
           ctx.stroke();
-          ctx.strokeStyle = `rgba(${LINE_RGB}, ${(HOVER_LINE_ALPHA * (v + down)) / 2})`;
-          ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x, y + gap);
-          ctx.stroke();
-          ctx.fillStyle = `rgba(${LINE_RGB}, ${DOT_ALPHA * v})`;
-          ctx.beginPath();
-          ctx.arc(x, y, DOT_RADIUS * (0.6 + 0.4 * v), 0, Math.PI * 2);
-          ctx.fill();
         }
       }
     };
@@ -103,7 +80,7 @@ export default function Pattern() {
           const i = r * cols + c;
           let target = 0;
           if (pointer) {
-            const d = Math.hypot(c * gap - pointer.x, r * gap - pointer.y);
+            const d = Math.hypot(c * gap + gap / 2 - pointer.x, r * gap + gap / 2 - pointer.y);
             if (d < RADIUS) target = (1 - d / RADIUS) ** 1.3;
           }
           const v = level[i];
