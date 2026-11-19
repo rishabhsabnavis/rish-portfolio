@@ -173,6 +173,7 @@ function Crate({ onPull }: { onPull: (id: RecordId) => void }) {
 
   return (
     <div className={pulling ? 'crate is-pulling' : 'crate'}>
+      <img className="crate-back" src="/assets/crate-back.webp" alt="" width={840} height={566} />
       <div className="crate-stack">
         {records.map((r, depth) => {
           let state: 'idle' | 'lifted' | 'leaning' | 'pulled' = 'idle';
@@ -193,7 +194,7 @@ function Crate({ onPull }: { onPull: (id: RecordId) => void }) {
         })}
       </div>
       <div className="crate-front" aria-hidden="true">
-        <span className="crate-handle" />
+        <img src="/assets/crate-front.webp" alt="" width={840} height={498} />
         <span className="crate-stamp">Rishabh Sabnavis &nbsp;/&nbsp; records</span>
       </div>
     </div>
