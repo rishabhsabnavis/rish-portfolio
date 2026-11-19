@@ -1,3 +1,5 @@
+import { projects } from './projects';
+
 /**
  * The records in the crate on the landing page. Each one is a section of the
  * site: pull it from the crate and its disc goes on the player.
@@ -17,7 +19,7 @@ export type CrateRecord = {
 
 /** Front of the crate first. */
 export const records: CrateRecord[] = [
-  { id: 'projects', title: 'Projects', sticker: '6 tracks', label: '#1f6b2e' },
+  { id: 'projects', title: 'Projects', sticker: `${projects.length} tracks`, label: '#1f6b2e' },
   { id: 'experience', title: 'Experience', sticker: '3 roles', label: '#c9d9a3' },
   { id: 'personal', title: 'Personal', sticker: 'The B-side', label: '#e7ecd8' },
   { id: 'contact', title: 'Contact', sticker: 'Say hello', label: '#a8e6a0' },

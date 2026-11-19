@@ -883,13 +883,13 @@ button:focus-visible {
 }
 .rack-grid {
   display: grid;
-  /* 6 discs: one row of 6 when it fits, else two even rows of 3. */
+  /* one row when it fits, else rows of 3 */
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
 }
 @media (min-width: 1180px) {
   .rack-grid {
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 .rack-btn {

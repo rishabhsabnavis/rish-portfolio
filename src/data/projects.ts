@@ -10,11 +10,13 @@ export type Project = {
   links?: { github?: string; demo?: string };
 };
 
-type ProjectInput = Omit<Project, 'num' | 'img'>;
+/** `art` pins a disc image (public/assets/discs/NN.webp) so art stays put when the list changes. */
+type ProjectInput = Omit<Project, 'num' | 'img'> & { art: string };
 
 const base: ProjectInput[] = [
   {
     id: 'emolog',
+    art: '01',
     kind: 'SDK',
     title: 'emolog',
     blurb:
@@ -29,6 +31,7 @@ const base: ProjectInput[] = [
   },
   {
     id: 'bookr',
+    art: '02',
     kind: 'VOICE AGENT',
     title: 'Bookr',
     blurb:
@@ -47,6 +50,7 @@ const base: ProjectInput[] = [
   },
   {
     id: 'inkling',
+    art: '03',
     kind: 'iOS APP',
     title: 'Inkling',
     blurb:
@@ -61,6 +65,7 @@ const base: ProjectInput[] = [
   },
   {
     id: 'cliptoken',
+    art: '04',
     kind: 'MIDDLEWARE',
     title: 'ClipToken',
     blurb:
@@ -69,20 +74,8 @@ const base: ProjectInput[] = [
     stack: ['Python', 'LLM agents'],
   },
   {
-    id: 'splat',
-    kind: 'GRAPHICS',
-    title: 'CPU Gaussian Splatting',
-    blurb:
-      'A Gaussian Splatting renderer that runs on the CPU, built by a team of four for Computer Graphics at UT Dallas.',
-    notes: [
-      'My part: .ply loading and scene trimming',
-      'Spherical harmonics for view-dependent color',
-      'Presented the conclusion',
-    ],
-    stack: ['3DGS', 'Spherical harmonics', 'PLY'],
-  },
-  {
     id: 'noise',
+    art: '06',
     kind: 'AUDIO ML',
     title: 'Urban Noise Classifier',
     blurb:
@@ -97,10 +90,11 @@ const base: ProjectInput[] = [
   },
 ];
 
-export const projects: Project[] = base.map((p, i) => {
-  const num = String(i + 1).padStart(2, '0');
-  return { ...p, num, img: `/assets/discs/${num}.webp` };
-});
+export const projects: Project[] = base.map(({ art, ...p }, i) => ({
+  ...p,
+  num: String(i + 1).padStart(2, '0'),
+  img: `/assets/discs/${art}.webp`,
+}));
 
 /** Footer links. Anything left undefined is not rendered. */
 export const contact: {

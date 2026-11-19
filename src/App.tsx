@@ -324,7 +324,7 @@ function Tracklist({ onPick }: { onPick: (id: string) => void }) {
     <article className="notes-article fade-in" aria-labelledby="track-title">
       <h2 id="track-title" className="track-title">Projects</h2>
       <p className="blurb">
-        Voice agents, speech middleware, an iOS app, a renderer and a classifier. Pick a track
+        Voice agents, speech middleware, an iOS app and an audio classifier. Pick a track
         to put its disc on.
       </p>
       <ol className="tracklist">
