@@ -99,15 +99,12 @@ function EjectIcon() {
 function Background({ project }: { project?: Project }) {
   return (
     <div className="bg" aria-hidden="true">
-      <img className="bg-art" src="/assets/background.webp" alt="" fetchPriority="high" />
       {project && (
         <div key={project.id} className="bg-wash fade-in">
           <img src={project.img} alt="" />
         </div>
       )}
-      <div className="drift drift-a" />
-      <div className="drift drift-b" />
-      <div className="bg-veil" />
+      <div className="bg-grid" />
     </div>
   );
 }

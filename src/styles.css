@@ -129,17 +129,26 @@ button:focus-visible {
   min-height: 100vh;
 }
 
+/* Full-page square grid: --grid-cols columns across the viewport, cells stay square. */
 .bg {
-  position: absolute;
+  --grid-cols: 16;
+  --grid-line: rgba(14, 42, 20, 0.13);
+  --grid-weight: 1px;
+  position: fixed;
   inset: 0;
   pointer-events: none;
+  container-type: size;
 }
-.bg-art {
+.bg-grid {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  --cell: calc(100cqw / var(--grid-cols));
+  background-image:
+    linear-gradient(to right, var(--grid-line) var(--grid-weight), transparent var(--grid-weight)),
+    linear-gradient(to bottom, var(--grid-line) var(--grid-weight), transparent var(--grid-weight));
+  background-size: var(--cell) var(--cell);
+  background-position: 0 0;
+  border-right: var(--grid-weight) solid var(--grid-line);
 }
 .bg-wash {
   position: absolute;
@@ -155,36 +164,6 @@ button:focus-visible {
 }
 .bg-wash.fade-in {
   animation-name: fadein-wash;
-}
-.drift {
-  position: absolute;
-  border-radius: 50%;
-  animation: drift 14s ease-in-out infinite;
-}
-.drift-a {
-  width: 720px;
-  height: 720px;
-  border: 1px solid rgba(14, 42, 20, 0.14);
-  right: -220px;
-  top: 120px;
-}
-.drift-b {
-  width: 420px;
-  height: 420px;
-  border: 1px solid rgba(14, 42, 20, 0.1);
-  left: -140px;
-  top: 640px;
-  animation-delay: -6s;
-}
-.bg-veil {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(247, 249, 245, 0.1) 0%,
-    rgba(247, 249, 245, 0.35) 45%,
-    rgba(247, 249, 245, 0.7) 100%
-  );
 }
 
 .wrap {
@@ -1077,15 +1056,6 @@ button:focus-visible {
     opacity: 1;
   }
 }
-@keyframes drift {
-  0%,
-  100% {
-    transform: translate(0, 0) rotate(0);
-  }
-  50% {
-    transform: translate(24px, -18px) rotate(8deg);
-  }
-}
 @keyframes pulse {
   0%,
   100% {
@@ -1104,7 +1074,6 @@ button:focus-visible {
     animation: fade 0.2s ease both;
   }
   .spinner,
-  .drift,
   .led {
     animation: none;
   }
@@ -1129,6 +1098,9 @@ button:focus-visible {
 /* ---------- responsive ---------- */
 
 @media (max-width: 639px) {
+  .bg {
+    --grid-cols: 8;
+  }
   :root {
     --gutter: 20px;
     --panel-pad: 24px;
