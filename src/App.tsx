@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { contact, PLAYER_TONE, PLAYER_TONES, projects, type Project } from './data/projects';
+import Pattern from './Pattern';
 import { experience, records, skills, type CrateRecord, type RecordId } from './data/records';
 
 /* ---------- routing ---------- */
@@ -104,7 +105,7 @@ function Background({ project }: { project?: Project }) {
           <img src={project.img} alt="" />
         </div>
       )}
-      <div className="bg-grid" />
+      <Pattern />
     </div>
   );
 }

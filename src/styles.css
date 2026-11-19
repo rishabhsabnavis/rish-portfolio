@@ -54,7 +54,7 @@ html {
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: #ffffff;
   color: var(--ink);
   font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
@@ -129,26 +129,18 @@ button:focus-visible {
   min-height: 100vh;
 }
 
-/* Full-page square grid: --grid-cols columns across the viewport, cells stay square. */
+/* Full-page interactive grid (drawn by Pattern.tsx) over white. */
 .bg {
-  --grid-cols: 16;
-  --grid-line: rgba(14, 42, 20, 0.13);
-  --grid-weight: 1px;
   position: fixed;
   inset: 0;
   pointer-events: none;
-  container-type: size;
+  background: #ffffff;
 }
-.bg-grid {
+.bg-pattern {
   position: absolute;
   inset: 0;
-  --cell: calc(100cqw / var(--grid-cols));
-  background-image:
-    linear-gradient(to right, var(--grid-line) var(--grid-weight), transparent var(--grid-weight)),
-    linear-gradient(to bottom, var(--grid-line) var(--grid-weight), transparent var(--grid-weight));
-  background-size: var(--cell) var(--cell);
-  background-position: 0 0;
-  border-right: var(--grid-weight) solid var(--grid-line);
+  width: 100%;
+  height: 100%;
 }
 .bg-wash {
   position: absolute;
@@ -1098,9 +1090,6 @@ button:focus-visible {
 /* ---------- responsive ---------- */
 
 @media (max-width: 639px) {
-  .bg {
-    --grid-cols: 8;
-  }
   :root {
     --gutter: 20px;
     --panel-pad: 24px;
