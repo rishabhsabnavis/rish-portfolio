@@ -8,6 +8,8 @@ export type Project = {
   notes: string[];
   stack: string[];
   links?: { github?: string; demo?: string };
+  /** Shown as a pill under the title, e.g. release state. */
+  status?: string;
 };
 
 /** `art` pins a disc image (public/assets/discs/NN.webp) so art stays put when the list changes. */
@@ -62,6 +64,7 @@ const base: ProjectInput[] = [
       'Reader state is event sourced as a replayable log, backed by 146 unit tests',
     ],
     stack: ['Swift', 'SwiftUI', 'Apple Vision', 'Foundation Models', 'Supabase Auth'],
+    status: 'Waiting for App Store approval',
   },
   {
     id: 'cliptoken',

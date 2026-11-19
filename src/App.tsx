@@ -287,6 +287,12 @@ function ProjectNotes({ project, onBack }: { project: Project; onBack: () => voi
       <h2 id="track-title" className="track-title">
         {project.title}
       </h2>
+      {project.status && (
+        <p className="status">
+          <span className="status-dot" aria-hidden="true" />
+          {project.status}
+        </p>
+      )}
       <p className="blurb">{project.blurb}</p>
       <ul className="note-list">
         {project.notes.map((n) => (
