@@ -72,6 +72,7 @@ const base: ProjectInput[] = [
       'Context compression middleware for AI agents. Less noise in the window, more room to think.',
     notes: ['Sits between an agent and its model', 'Compresses context before it is sent'],
     stack: ['Python', 'LLM agents'],
+    links: { github: 'https://github.com/rishabhsabnavis/ClipToken' },
   },
   {
     id: 'noise',
