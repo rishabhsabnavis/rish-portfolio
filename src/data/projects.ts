@@ -51,6 +51,27 @@ const base: ProjectInput[] = [
     },
   },
   {
+    id: 'neighborly',
+    art: '05',
+    kind: 'AI AGENT',
+    title: 'Neighborly (HackUTD)',
+    blurb:
+      'A disaster check-in agent built in 24 hours at HackUTD 2026. After a declared hurricane it texts every policyholder in the zone, gets them help by text, voice or a human, and turns what they said into a claim draft.',
+    notes: [
+      'Checked in on 42 policyholders across 15 FEMA-declared counties by orchestrating NVIDIA Nemotron tool calls from an event-driven FastAPI agent loop',
+      'Hit 6/6 live triage accuracy and 3/3 correct plans over 44 concurrent cases with a hybrid planner: rules list due actions, the LLM orders them behind guardrails',
+      'Kept every dollar figure sent to users verified, enforced by 92 pytest tests, with a deterministic coverage tool and a validator that strips unverified amounts',
+      'Placed an outbound voice call within 20s of a text reply by running ElevenLabs agents over Photon SIP with the case history injected as context',
+      'Escalated life-safety cases in under 2s with no LLM in the path, and drafted structured claims in 1.6s',
+      'Shipped on Vercel and Railway (Docker) with 10s timeouts and heuristic fallbacks so it stays up if a model provider fails',
+    ],
+    stack: ['Python', 'FastAPI', 'NVIDIA Nemotron', 'ElevenLabs', 'Next.js', 'TypeScript', 'Docker', 'Railway'],
+    links: {
+      github: 'https://github.com/rishabhsabnavis/neighborly',
+      demo: 'https://neighborly-ecru-two.vercel.app',
+    },
+  },
+  {
     id: 'inkling',
     art: '03',
     kind: 'iOS APP',
