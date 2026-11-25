@@ -45,10 +45,7 @@ const base: ProjectInput[] = [
       'Production across Railway, Vercel, Neon, MongoDB Atlas, LiveKit and Twilio at about **$0.65 per call**',
     ],
     stack: ['Python', 'LangGraph', 'FastAPI', 'pgvector', 'React', 'MongoDB', 'Docker', 'LiveKit', 'Twilio'],
-    links: {
-      github: 'https://github.com/rishabhsabnavis/Bookr',
-      demo: 'https://bookr-lyart.vercel.app',
-    },
+    links: { github: 'https://github.com/rishabhsabnavis/Bookr' },
   },
   {
     id: 'neighborly',
