@@ -3,6 +3,19 @@ import { contact, PLAYER_TONE, PLAYER_TONES, projects, type Project } from './da
 import Pattern from './Pattern';
 import { experience, records, skills, type CrateRecord, type RecordId } from './data/records';
 
+/* ---------- text ---------- */
+
+/** Renders `**bold**` spans in note strings as <strong>. */
+function Rich({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/\*\*(.+?)\*\*/g).map((part, i) =>
+        i % 2 ? <strong key={i}>{part}</strong> : part,
+      )}
+    </>
+  );
+}
+
 /* ---------- routing ---------- */
 
 type Route = { record: RecordId | null; projectId: string | null };
@@ -146,7 +159,6 @@ function Sleeve({
       <span className="sleeve-cover" aria-hidden="true">
         <span className="sleeve-art" />
         <span className="sleeve-title">{record.title}</span>
-        <span className="sleeve-sticker">{record.sticker}</span>
       </span>
     </button>
   );
@@ -296,7 +308,7 @@ function ProjectNotes({ project, onBack }: { project: Project; onBack: () => voi
         {project.notes.map((n) => (
           <li key={n}>
             <span className="plus" aria-hidden="true">+</span>
-            <span>{n}</span>
+            <span><Rich text={n} /></span>
           </li>
         ))}
       </ul>
@@ -361,7 +373,7 @@ function ExperienceNotes() {
               {r.notes.map((n) => (
                 <li key={n}>
                   <span className="plus" aria-hidden="true">+</span>
-                  <span>{n}</span>
+                  <span><Rich text={n} /></span>
                 </li>
               ))}
             </ul>

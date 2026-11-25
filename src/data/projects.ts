@@ -24,9 +24,9 @@ const base: ProjectInput[] = [
     blurb:
       'Paralinguistic middleware for voice AI. It hears how something is said, not just what, and hands that context to the LLM.',
     notes: [
-      'Extracts pitch, energy and speaking rate and maps prosody to emotion',
-      'Injects that context into the LLM system prompt on every turn',
-      'Drop-in SDK built for LiveKit and Vapi, packaged for PyPI',
+      'Extracts **pitch, energy and speaking rate** and maps prosody to emotion',
+      'Injects that context into the **LLM system prompt** on every turn',
+      'Drop-in **SDK** built for **LiveKit** and **Vapi**, packaged for **PyPI**',
     ],
     stack: ['Python', 'LiveKit', 'Vapi', 'PyPI'],
     links: { github: 'https://github.com/rishabhsabnavis/emolog' },
@@ -39,10 +39,10 @@ const base: ProjectInput[] = [
     blurb:
       'A multi-agent voice system for DJs that cold-calls venues over real phone lines, taking a booking from profile to matched venues to a live call to a logged outcome.',
     notes: [
-      '4 LangGraph agents: a supervisor plus venue discovery, pitch builder and outbound caller',
-      'RAG venue matching over a 95-venue pgvector database, filtered by city, venue type and genre',
-      'Embeddings cut to 512 dimensions for faster cosine-similarity retrieval',
-      'Production across Railway, Vercel, Neon, MongoDB Atlas, LiveKit and Twilio at about $0.65 per call',
+      '**4 LangGraph agents**: a supervisor plus venue discovery, pitch builder and outbound caller',
+      '**RAG** venue matching over a **95-venue pgvector** database, filtered by city, venue type and genre',
+      'Embeddings cut to **512 dimensions** for faster cosine-similarity retrieval',
+      'Production across Railway, Vercel, Neon, MongoDB Atlas, LiveKit and Twilio at about **$0.65 per call**',
     ],
     stack: ['Python', 'LangGraph', 'FastAPI', 'pgvector', 'React', 'MongoDB', 'Docker', 'LiveKit', 'Twilio'],
     links: {
@@ -58,12 +58,12 @@ const base: ProjectInput[] = [
     blurb:
       'A disaster check-in agent built in 24 hours at HackUTD 2026. After a declared hurricane it texts every policyholder in the zone, gets them help by text, voice or a human, and turns what they said into a claim draft.',
     notes: [
-      'Checked in on 42 policyholders across 15 FEMA-declared counties by orchestrating NVIDIA Nemotron tool calls from an event-driven FastAPI agent loop',
-      'Hit 6/6 live triage accuracy and 3/3 correct plans over 44 concurrent cases with a hybrid planner: rules list due actions, the LLM orders them behind guardrails',
-      'Kept every dollar figure sent to users verified, enforced by 92 pytest tests, with a deterministic coverage tool and a validator that strips unverified amounts',
-      'Placed an outbound voice call within 20s of a text reply by running ElevenLabs agents over Photon SIP with the case history injected as context',
-      'Escalated life-safety cases in under 2s with no LLM in the path, and drafted structured claims in 1.6s',
-      'Shipped on Vercel and Railway (Docker) with 10s timeouts and heuristic fallbacks so it stays up if a model provider fails',
+      'Checked in on **42 policyholders** across **15 FEMA-declared counties** by orchestrating **NVIDIA Nemotron tool calls** from an event-driven **FastAPI** agent loop',
+      'Hit **6/6 live triage accuracy** and **3/3 correct plans** over **44 concurrent cases** with a **hybrid planner**: rules list due actions, the LLM orders them behind guardrails',
+      'Kept every dollar figure sent to users verified, enforced by **92 pytest tests**, with a **deterministic coverage tool** and a validator that strips unverified amounts',
+      'Placed an outbound voice call **within 20s** of a text reply by running **ElevenLabs** agents over **Photon SIP** with the case history injected as context',
+      'Escalated life-safety cases in **under 2s** with no LLM in the path, and drafted structured claims in **1.6s**',
+      'Shipped on **Vercel** and **Railway (Docker)** with **10s timeouts** and heuristic fallbacks so it stays up if a model provider fails',
     ],
     stack: ['Python', 'FastAPI', 'NVIDIA Nemotron', 'ElevenLabs', 'Next.js', 'TypeScript', 'Docker', 'Railway'],
     links: {
@@ -79,10 +79,10 @@ const base: ProjectInput[] = [
     blurb:
       'An offline-first iOS reading companion. Scan a page, and it flags the words you probably do not know and defines them on tap.',
     notes: [
-      'Vision OCR on the page, WordNet for definitions',
-      'On-device Foundation Models pick the right word sense from sentence context',
-      '1PL Rasch model with Bayesian updates estimates reader ability, settling within 0.25 logits',
-      'Reader state is event sourced as a replayable log, backed by 146 unit tests',
+      '**Vision OCR** on the page, **WordNet** for definitions',
+      '**On-device Foundation Models** pick the right word sense from sentence context',
+      '**1PL Rasch model** with Bayesian updates estimates reader ability, settling **within 0.25 logits**',
+      'Reader state is **event sourced** as a replayable log, backed by **146 unit tests**',
     ],
     stack: ['Swift', 'SwiftUI', 'Apple Vision', 'Foundation Models', 'Supabase Auth'],
     status: 'Waiting for App Store approval',
@@ -94,7 +94,7 @@ const base: ProjectInput[] = [
     title: 'ClipToken',
     blurb:
       'Context compression middleware for AI agents. Less noise in the window, more room to think.',
-    notes: ['Sits between an agent and its model', 'Compresses context before it is sent'],
+    notes: ['Sits between an **AI agent** and its **model**', '**Compresses context** before it is sent'],
     stack: ['Python', 'LLM agents'],
     links: { github: 'https://github.com/rishabhsabnavis/ClipToken' },
   },
@@ -106,9 +106,9 @@ const base: ProjectInput[] = [
     blurb:
       'Classifies urban noise pollution from raw audio, with a web front end to explore it.',
     notes: [
-      'Wav2Vec2 audio representations',
-      'Models in TensorFlow and PyTorch',
-      'React front end deployed on AWS',
+      '**Wav2Vec2** audio representations',
+      'Models in **TensorFlow** and **PyTorch**',
+      '**React** front end deployed on **AWS**',
     ],
     stack: ['Wav2Vec2', 'TensorFlow', 'PyTorch', 'React', 'AWS'],
     links: { github: 'https://github.com/rishabhsabnavis/noiseapp' },

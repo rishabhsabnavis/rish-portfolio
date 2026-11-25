@@ -312,19 +312,6 @@ button:focus-visible {
   line-height: 1;
   text-align: left;
 }
-.sleeve-sticker {
-  position: absolute;
-  right: 14px;
-  top: 12px;
-  padding: 5px 10px;
-  border-radius: 6px;
-  background: #f3f6cf;
-  color: var(--ink);
-  font-size: 12px;
-  font-weight: 500;
-  transform: rotate(-5deg);
-  box-shadow: 0 1px 3px rgba(14, 42, 20, 0.25);
-}
 .sleeve-disc {
   position: absolute;
   left: 4%;
@@ -819,6 +806,10 @@ button:focus-visible {
   flex-direction: column;
   gap: 10px;
   max-width: 520px;
+}
+.note-list strong {
+  font-weight: 600;
+  color: var(--ink);
 }
 .note-list li {
   display: flex;
